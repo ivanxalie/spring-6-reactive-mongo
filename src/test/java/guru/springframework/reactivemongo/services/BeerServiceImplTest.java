@@ -1,6 +1,6 @@
 package guru.springframework.reactivemongo.services;
 
-import guru.springframework.reactivemongo.bootstrap.BootstrapDB;
+import guru.springframework.reactivemongo.TestUtils;
 import guru.springframework.reactivemongo.domain.Beer;
 import guru.springframework.reactivemongo.mappers.BeerMapper;
 import guru.springframework.reactivemongo.model.BeerDTO;
@@ -10,14 +10,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static guru.springframework.reactivemongo.TestUtils.createTestBeer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,16 +57,6 @@ class BeerServiceImplTest {
         assertThat(atomicReference.get().getId()).isNotNull();
     }
 
-    Beer createTestBeer() {
-        return Beer.builder()
-                .name("Space Dust")
-                .style("IPA")
-                .price(BigDecimal.TEN)
-                .quantityOnHand(12)
-                .upc("12323232")
-                .build();
-    }
-
     @Test
     @DisplayName("Test Save Beer Using Block")
     void saveBeerBlocking() {
@@ -95,9 +84,7 @@ class BeerServiceImplTest {
     }
 
     private BeerDTO saveAndGetBeer() {
-        return service
-                .saveBeer(mapper.toBeerDto(createTestBeer()))
-                .block();
+        return TestUtils.saveAndGetBeer(service, mapper);
     }
 
     @Test

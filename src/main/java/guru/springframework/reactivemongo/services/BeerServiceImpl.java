@@ -7,10 +7,12 @@ import guru.springframework.reactivemongo.repositories.BeerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.Validator;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
@@ -18,6 +20,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class BeerServiceImpl implements BeerService {
     private final BeerRepository repository;
     private final BeerMapper mapper;
+    private final Validator validator;
 
     @Override
     public Flux<BeerDTO> beers() {
@@ -28,9 +31,15 @@ public class BeerServiceImpl implements BeerService {
 
     @Override
     public Mono<BeerDTO> saveBeer(BeerDTO beerDTO) {
+        if (!isValid(beerDTO))
+            return Mono.error(new ResponseStatusException(BAD_REQUEST));
         return repository
                 .save(mapper.toBeer(beerDTO))
                 .map(mapper::toBeerDto);
+    }
+
+    private boolean isValid(BeerDTO beerDTO) {
+        return !validator.validateObject(beerDTO).hasErrors();
     }
 
     @Override
@@ -43,6 +52,8 @@ public class BeerServiceImpl implements BeerService {
 
     @Override
     public Mono<BeerDTO> updateBeer(String id, BeerDTO beerDTO) {
+        if (!isValid(beerDTO))
+            return Mono.error(new ResponseStatusException(BAD_REQUEST));
         return repository
                 .findById(id)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(NOT_FOUND)))
@@ -64,6 +75,8 @@ public class BeerServiceImpl implements BeerService {
 
     @Override
     public Mono<BeerDTO> patchBeer(String id, BeerDTO beerDTO) {
+        if (!isValid(beerDTO))
+            return Mono.error(new ResponseStatusException(BAD_REQUEST));
         return repository
                 .findById(id)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(NOT_FOUND)))
