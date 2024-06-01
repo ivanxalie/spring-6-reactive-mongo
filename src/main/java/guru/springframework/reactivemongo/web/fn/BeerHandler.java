@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.Optional;
 
 import static guru.springframework.reactivemongo.web.fn.BeerRouter.BEER_PATH_ID;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
@@ -22,9 +22,16 @@ public class BeerHandler {
     private final BeerService service;
 
     public Mono<ServerResponse> beers(ServerRequest request) {
-        Optional<String> beerStyle = request.queryParam("beerStyle");
-        return beerStyle.map(s -> ok().body(service.findByStyle(s), BeerDTO.class))
-                .orElseGet(() -> ok().body(service.beers(), BeerDTO.class));
+        Flux<BeerDTO> flux;
+
+        if (request.queryParam("beerStyle").isPresent()) {
+            flux = service.findByStyle(request.queryParam("beerStyle").get());
+        } else {
+            flux = service.beers();
+        }
+
+        return ServerResponse.ok()
+                .body(flux, BeerDTO.class);
     }
 
     public Mono<ServerResponse> findById(ServerRequest request) {
