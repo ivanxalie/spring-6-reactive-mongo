@@ -1,5 +1,6 @@
 package guru.springframework.reactivemongo.web.fn;
 
+import guru.springframework.reactivemongo.TestConfig;
 import guru.springframework.reactivemongo.domain.Beer;
 import guru.springframework.reactivemongo.model.BeerDTO;
 import org.junit.jupiter.api.MethodOrderer;
@@ -21,7 +22,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@SpringBootTest
+@SpringBootTest(classes = TestConfig.class)
 @AutoConfigureWebTestClient
 public class BeerEndpointTest {
 

@@ -1,5 +1,6 @@
 package guru.springframework.reactivemongo.web.fn;
 
+import guru.springframework.reactivemongo.TestConfig;
 import guru.springframework.reactivemongo.domain.Customer;
 import guru.springframework.reactivemongo.model.CustomerDTO;
 import org.junit.jupiter.api.MethodOrderer;
@@ -19,7 +20,7 @@ import static guru.springframework.reactivemongo.web.fn.CustomerRouter.CUSTOMER_
 import static org.hamcrest.Matchers.greaterThan;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@SpringBootTest
+@SpringBootTest(classes = TestConfig.class)
 @AutoConfigureWebTestClient
 public class CustomerEndpointTest {
 
